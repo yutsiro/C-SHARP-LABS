@@ -1,8 +1,7 @@
 namespace Truancy;
 
-public sealed class Teacher(Subject subject, TeacherRule rule, Subject a, Subject b)
+public sealed class Teacher(TeacherRule rule, Subject a, Subject b)
 {
-    public Subject Subject { get; } = subject;
     public TeacherRule Rule { get; } = rule;
     public Subject A { get; } = a;
     public Subject B { get; } = b;
@@ -18,27 +17,23 @@ public sealed class Teacher(Subject subject, TeacherRule rule, Subject a, Subjec
 public static class TeacherFactory
 {
     public static Dictionary<Subject, Teacher> CreateTeachers(IRandomSource random) =>
-        Subjects.All.ToDictionary(subject => subject, subject => CreateTeacher(random, subject));
+        Subjects.All.ToDictionary(subject => subject, _ => CreateTeacher(random));
 
-    private static Teacher CreateTeacher(IRandomSource random, Subject subject)
+    private static Teacher CreateTeacher(IRandomSource random)
     {
         TeacherRule[] rules = Enum.GetValues<TeacherRule>();
         TeacherRule rule = rules[random.Next(rules.Length)];
 
-        Subject a = subject;
-        Subject b = subject;
-
-        if (rule == TeacherRule.CopyA)
+        if (rule == TeacherRule.Random50)
         {
-            a = RandomSubject(random);
-        }
-        else if (rule == TeacherRule.XorAB)
-        {
-            a = RandomSubject(random);
-            b = RandomSubjectExcept(random, a);
+            return new Teacher(rule, default, default);
         }
 
-        return new Teacher(subject, rule, a, b);
+        Subject a = RandomSubject(random);
+
+        return rule == TeacherRule.CopyA
+            ? new Teacher(rule, a, default)
+            : new Teacher(rule, a, RandomSubjectExcept(random, a));
     }
 
     private static Subject RandomSubject(IRandomSource random) =>

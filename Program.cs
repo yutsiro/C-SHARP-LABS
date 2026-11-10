@@ -1,27 +1,32 @@
-﻿using Truancy;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Truancy;
 
-IRandomSource random = new RandomSource(Environment.TickCount);
+using IHost host = Host.CreateDefaultBuilder(args)
+    .ConfigureLogging(logging => logging.ClearProviders())
+    .ConfigureServices(services =>
+    {
+        services.AddSingleton<IRandomSource>(new RandomSource(Environment.TickCount));
+        services.AddSingleton<History>();
+        services.AddSingleton<IReadOnlyStudentHistory>(provider => provider.GetRequiredService<History>());
+        services.AddSingleton<IStudentHistoryWriter>(provider => provider.GetRequiredService<History>());
+        services.AddSingleton<IReadOnlyDictionary<Subject, Teacher>>(provider =>
+            TeacherFactory.CreateTeachers(provider.GetRequiredService<IRandomSource>()));
+        services.AddSingleton<ISkipStrategy, ReconStrategy>();
+        services.AddSingleton<SemesterSimulator>();
+        services.AddHostedService<DayLoopService>();
+    })
+    .Build();
 
-var teachers = TeacherFactory.CreateTeachers(random);
+IHostApplicationLifetime lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
 
-ISkipStrategy strategy = new ReconStrategy();
+Console.WriteLine("Симуляция запущена. Нажмите любую клавишу, чтобы остановить.");
 
-SemesterEmulator emulator = new SemesterEmulator(teachers, random, strategy);
-SemesterResult result = emulator.Run();
-
-double average = result.TotalPleasure / (double)Semester.Days;
-
-Console.WriteLine("Результаты семестра:");
-Console.WriteLine($"Стратегия: {strategy.Name}");
-Console.WriteLine($"Вылетел: {(result.Expelled ? "да" : "нет")}");
-
-if (result.Expelled)
+_ = Task.Run(() =>
 {
-    Console.WriteLine($"День вылета: {result.ExpulsionDay}");
-}
+    Console.ReadKey(true);
+    lifetime.StopApplication();
+});
 
-Console.WriteLine($"Общее удовольствие: {result.TotalPleasure}");
-Console.WriteLine($"Среднее удовольствие в день: {average:F2}");
-
-File.WriteAllLines("semester_log.txt", emulator.Log);
-Console.WriteLine("Лог записан в semester_log.txt");
+await host.RunAsync();

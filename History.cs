@@ -14,34 +14,35 @@ public interface IStudentHistoryWriter
 
 public sealed class History : IReadOnlyStudentHistory, IStudentHistoryWriter
 {
-    private readonly Dictionary<Subject, bool>[] _attended;
-    private readonly Dictionary<Subject, bool?>[] _asked;
-
-    public History()
-    {
-        _attended = new Dictionary<Subject, bool>[Semester.Days + 1];
-        _asked = new Dictionary<Subject, bool?>[Semester.Days + 1];
-
-        foreach (int day in Enumerable.Range(1, Semester.Days))
-        {
-            _attended[day] = new Dictionary<Subject, bool>();
-            _asked[day] = new Dictionary<Subject, bool?>();
-        }
-    }
+    private readonly List<Dictionary<Subject, bool>> _attended = new();
+    private readonly List<Dictionary<Subject, bool?>> _asked = new();
 
     public void RecordAttended(int day, Subject subject, bool asked)
     {
-        _attended[day][subject] = true;
-        _asked[day][subject] = asked;
+        EnsureDay(day);
+        _attended[day - 1][subject] = true;
+        _asked[day - 1][subject] = asked;
     }
 
     public void RecordSkipped(int day, Subject subject)
     {
-        _attended[day][subject] = false;
-        _asked[day][subject] = null;
+        EnsureDay(day);
+        _attended[day - 1][subject] = false;
+        _asked[day - 1][subject] = null;
     }
 
-    public bool Attended(int day, Subject subject) => _attended[day].GetValueOrDefault(subject);
+    public bool Attended(int day, Subject subject) =>
+        day - 1 < _attended.Count && _attended[day - 1].GetValueOrDefault(subject);
 
-    public bool? WasAsked(int day, Subject subject) => _asked[day].GetValueOrDefault(subject);
+    public bool? WasAsked(int day, Subject subject) =>
+        day - 1 < _asked.Count ? _asked[day - 1].GetValueOrDefault(subject) : null;
+
+    private void EnsureDay(int day)
+    {
+        while (_attended.Count < day)
+        {
+            _attended.Add(new());
+            _asked.Add(new());
+        }
+    }
 }
