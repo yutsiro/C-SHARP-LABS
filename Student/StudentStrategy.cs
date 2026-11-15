@@ -47,7 +47,7 @@ public sealed class ReconStrategy : ISkipStrategy
         {
             Prediction.Never => false,
             Prediction.Copy => yesterday[guess.A],
-            Prediction.Xor => yesterday[guess.A] == yesterday[guess.B],
+            Prediction.Xor => yesterday[guess.A] != yesterday[guess.B],
             _ => true
         };
     }
