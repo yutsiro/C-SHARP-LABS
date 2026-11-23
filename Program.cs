@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Truancy;
 
-using IHost host = Host.CreateDefaultBuilder(args)
+using var host = Host.CreateDefaultBuilder(args)
     .ConfigureLogging(logging => logging.ClearProviders())
     .ConfigureServices(services =>
     {
@@ -19,7 +19,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-IHostApplicationLifetime lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
+var lifetime = host.Services.GetRequiredService<IHostApplicationLifetime>();
 
 Console.WriteLine("Симуляция запущена. Нажмите любую клавишу, чтобы остановить.");
 

@@ -21,15 +21,15 @@ public static class TeacherFactory
 
     private static Teacher CreateTeacher(IRandomSource random)
     {
-        TeacherRule[] rules = Enum.GetValues<TeacherRule>();
-        TeacherRule rule = rules[random.Next(rules.Length)];
+        var rules = Enum.GetValues<TeacherRule>();
+        var rule = rules[random.Next(rules.Length)];
 
         if (rule == TeacherRule.Random50)
         {
             return new Teacher(rule, default, default);
         }
 
-        Subject a = RandomSubject(random);
+        var a = RandomSubject(random);
 
         return rule == TeacherRule.CopyA
             ? new Teacher(rule, a, default)

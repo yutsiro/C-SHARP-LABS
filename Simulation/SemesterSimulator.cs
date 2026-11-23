@@ -43,16 +43,16 @@ public sealed class SemesterSimulator
 
         _day++;
 
-        bool[] plan = _strategy.DecideDay(_day, _historyReader);
-        Dictionary<Subject, bool> decision = Subjects.All.Zip(plan)
+        var plan = _strategy.DecideDay(_day, _historyReader);
+        var decision = Subjects.All.Zip(plan)
             .ToDictionary(pair => pair.First, pair => pair.Second);
 
-        Dictionary<Subject, bool> todayAsked = new();
-        int skipped = 0;
+        var todayAsked = new Dictionary<Subject, bool>();
+        var skipped = 0;
 
         foreach (Subject subject in Subjects.All)
         {
-            bool willAsk = _teachers[subject].WillAsk(_yesterdayAsked, _random);
+            var willAsk = _teachers[subject].WillAsk(_yesterdayAsked, _random);
             todayAsked[subject] = willAsk;
 
             if (decision[subject])

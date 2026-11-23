@@ -32,7 +32,7 @@ public sealed class ReconStrategy : ISkipStrategy
             _classified = true;
         }
 
-        Dictionary<Subject, bool> yesterday = Subjects.All.ToDictionary(
+        var yesterday = Subjects.All.ToDictionary(
             subject => subject,
             subject => history.WasAsked(day - 1, subject) ?? false);
 
@@ -41,7 +41,7 @@ public sealed class ReconStrategy : ISkipStrategy
 
     private bool ShouldAttend(Subject subject, IReadOnlyDictionary<Subject, bool> yesterday)
     {
-        TeacherGuess guess = _guesses[subject];
+        var guess = _guesses[subject];
 
         return guess.Prediction switch
         {
@@ -54,7 +54,7 @@ public sealed class ReconStrategy : ISkipStrategy
 
     private void Classify(IReadOnlyStudentHistory history)
     {
-        Dictionary<Subject, bool[]> ask = Subjects.All.ToDictionary(
+        var ask = Subjects.All.ToDictionary(
             subject => subject,
             subject => new bool[ReconDays + 1]);
 
