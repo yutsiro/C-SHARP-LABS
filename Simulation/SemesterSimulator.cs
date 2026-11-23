@@ -50,7 +50,7 @@ public sealed class SemesterSimulator
         var todayAsked = new Dictionary<Subject, bool>();
         var skipped = 0;
 
-        foreach (Subject subject in Subjects.All)
+        foreach (var subject in Subjects.All)
         {
             var willAsk = _teachers[subject].WillAsk(_yesterdayAsked, _random);
             todayAsked[subject] = willAsk;
