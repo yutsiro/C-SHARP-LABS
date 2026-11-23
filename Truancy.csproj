@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Truancy.Tests\**" />
+    <Compile Remove="Truancy.Tests/**" />
   </ItemGroup>
 
 </Project>

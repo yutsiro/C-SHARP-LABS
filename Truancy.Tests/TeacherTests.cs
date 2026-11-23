@@ -9,7 +9,7 @@ public sealed class TeacherTests
     {
         var teacher = new Teacher(TeacherRule.Random50, default, default);
 
-        bool result = teacher.WillAsk(new Dictionary<Subject, bool>(), new FakeRandom().AddDouble(0.25));
+        var result = teacher.WillAsk(new Dictionary<Subject, bool>(), new FakeRandom().AddDouble(0.25));
 
         Assert.True(result);
     }
@@ -19,7 +19,7 @@ public sealed class TeacherTests
     {
         var teacher = new Teacher(TeacherRule.Random50, default, default);
 
-        bool result = teacher.WillAsk(new Dictionary<Subject, bool>(), new FakeRandom().AddDouble(0.75));
+        var result = teacher.WillAsk(new Dictionary<Subject, bool>(), new FakeRandom().AddDouble(0.75));
 
         Assert.False(result);
     }
@@ -32,7 +32,7 @@ public sealed class TeacherTests
         var teacher = new Teacher(TeacherRule.CopyA, Subject.Calculus, default);
         var yesterday = new Dictionary<Subject, bool> { [Subject.Calculus] = sourceAsked };
 
-        bool result = teacher.WillAsk(yesterday, new FakeRandom());
+        var result = teacher.WillAsk(yesterday, new FakeRandom());
 
         Assert.Equal(sourceAsked, result);
     }
@@ -51,7 +51,7 @@ public sealed class TeacherTests
             [Subject.LinearAlgebra] = b
         };
 
-        bool result = teacher.WillAsk(yesterday, new FakeRandom());
+        var result = teacher.WillAsk(yesterday, new FakeRandom());
 
         Assert.Equal(expected, result);
     }

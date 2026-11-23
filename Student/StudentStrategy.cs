@@ -9,9 +9,15 @@ public sealed class ReconStrategy : ISkipStrategy
 {
     private const int ReconDays = 10;
 
-    private enum Prediction { Never, Copy, Xor, Random }
+    private abstract record TeacherGuess;
 
-    private sealed record TeacherGuess(Prediction Prediction, Subject A = Subject.Calculus, Subject B = Subject.Calculus);
+    private sealed record NeverGuess : TeacherGuess;
+
+    private sealed record CopyGuess(Subject A) : TeacherGuess;
+
+    private sealed record XorGuess(Subject A, Subject B) : TeacherGuess;
+
+    private sealed record RandomGuess : TeacherGuess;
 
     private bool _classified;
     private readonly Dictionary<Subject, TeacherGuess> _guesses = new();
@@ -36,18 +42,14 @@ public sealed class ReconStrategy : ISkipStrategy
         return Subjects.All.Select(subject => ShouldAttend(subject, yesterday)).ToArray();
     }
 
-    private bool ShouldAttend(Subject subject, IReadOnlyDictionary<Subject, bool> yesterday)
-    {
-        var guess = _guesses[subject];
-
-        return guess.Prediction switch
+    private bool ShouldAttend(Subject subject, IReadOnlyDictionary<Subject, bool> yesterday) =>
+        _guesses[subject] switch
         {
-            Prediction.Never => false,
-            Prediction.Copy => yesterday[guess.A],
-            Prediction.Xor => yesterday[guess.A] != yesterday[guess.B],
+            NeverGuess => false,
+            CopyGuess copy => yesterday[copy.A],
+            XorGuess xor => yesterday[xor.A] != yesterday[xor.B],
             _ => true
         };
-    }
 
     private void Classify(IReadOnlyStudentHistory history)
     {
@@ -55,15 +57,15 @@ public sealed class ReconStrategy : ISkipStrategy
             subject => subject,
             subject => new bool[ReconDays + 1]);
 
-        foreach (int day in Enumerable.Range(1, ReconDays))
+        foreach (var day in Enumerable.Range(1, ReconDays))
         {
-            foreach (Subject subject in Subjects.All)
+            foreach (var subject in Subjects.All)
             {
                 ask[subject][day] = history.WasAsked(day, subject) ?? false;
             }
         }
 
-        foreach (Subject subject in Subjects.All)
+        foreach (var subject in Subjects.All)
         {
             _guesses[subject] = DetectGuess(ask, subject);
         }
@@ -73,29 +75,29 @@ public sealed class ReconStrategy : ISkipStrategy
     {
         if (Enumerable.Range(1, ReconDays).All(day => !ask[subject][day]))
         {
-            return new TeacherGuess(Prediction.Never);
+            return new NeverGuess();
         }
 
-        foreach (Subject a in Subjects.All)
+        foreach (var a in Subjects.All)
         {
             if (MatchesCopy(ask, subject, a))
             {
-                return new TeacherGuess(Prediction.Copy, a);
+                return new CopyGuess(a);
             }
         }
 
-        foreach (Subject a in Subjects.All)
+        foreach (var a in Subjects.All)
         {
-            foreach (Subject b in Subjects.All)
+            foreach (var b in Subjects.All)
             {
                 if (a != b && MatchesXor(ask, subject, a, b))
                 {
-                    return new TeacherGuess(Prediction.Xor, a, b);
+                    return new XorGuess(a, b);
                 }
             }
         }
 
-        return new TeacherGuess(Prediction.Random);
+        return new RandomGuess();
     }
 
     private bool MatchesCopy(Dictionary<Subject, bool[]> ask, Subject subject, Subject a) =>

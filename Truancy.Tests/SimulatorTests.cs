@@ -113,7 +113,7 @@ public sealed class SimulatorTests
 
         simulator.AdvanceDay();
 
-        int day = simulator.Day;
+        var day = simulator.Day;
         simulator.AdvanceDay();
 
         Assert.True(simulator.Expelled);

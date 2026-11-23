@@ -19,7 +19,13 @@ internal sealed class FakeRandom : IRandomSource
         return this;
     }
 
-    public int Next(int maxValue) => _ints.Count > 0 ? _ints.Dequeue() : 0;
+    public int Next(int maxValue) =>
+        _ints.TryDequeue(out var value)
+            ? value
+            : throw new InvalidOperationException("FakeRandom: значение для Next не задано.");
 
-    public double NextDouble() => _doubles.Count > 0 ? _doubles.Dequeue() : 0.0;
+    public double NextDouble() =>
+        _doubles.TryDequeue(out var value)
+            ? value
+            : throw new InvalidOperationException("FakeRandom: значение для NextDouble не задано.");
 }

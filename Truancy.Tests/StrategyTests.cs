@@ -7,7 +7,7 @@ public sealed class StrategyTests
     [Fact]
     public void EmptyHistory_AttendsAll()
     {
-        bool[] result = new ReconStrategy().DecideDay(1, new History());
+        var result = new ReconStrategy().DecideDay(1, new History());
 
         Assert.All(result, attend => Assert.True(attend));
     }
@@ -15,7 +15,7 @@ public sealed class StrategyTests
     [Fact]
     public void ReconDays_AttendAll()
     {
-        bool[] result = new ReconStrategy().DecideDay(10, new History());
+        var result = new ReconStrategy().DecideDay(10, new History());
 
         Assert.All(result, attend => Assert.True(attend));
     }
@@ -28,7 +28,7 @@ public sealed class StrategyTests
             [Subject.Physics] = Enumerable.Repeat(false, 10).ToArray()
         });
 
-        bool[] result = new ReconStrategy().DecideDay(11, history);
+        var result = new ReconStrategy().DecideDay(11, history);
 
         Assert.False(ToDecision(result)[Subject.Physics]);
     }
@@ -41,7 +41,7 @@ public sealed class StrategyTests
             [Subject.Physics] = Enumerable.Repeat(true, 10).ToArray()
         });
 
-        bool[] result = new ReconStrategy().DecideDay(11, history);
+        var result = new ReconStrategy().DecideDay(11, history);
 
         Assert.True(ToDecision(result)[Subject.Physics]);
     }
@@ -50,8 +50,8 @@ public sealed class StrategyTests
     public void CopySource_Skips_WhenSourceNotAskedYesterday()
     {
         bool[] calculus = { true, false, true, false, true, false, true, false, true, false };
-        bool[] programming = new bool[10];
-        for (int day = 0; day < 10; day++)
+        var programming = new bool[10];
+        for (var day = 0; day < 10; day++)
         {
             programming[day] = day == 0 ? false : calculus[day - 1];
         }
@@ -62,7 +62,7 @@ public sealed class StrategyTests
             [Subject.Programming] = programming
         });
 
-        bool[] result = new ReconStrategy().DecideDay(11, history);
+        var result = new ReconStrategy().DecideDay(11, history);
 
         Assert.False(ToDecision(result)[Subject.Programming]);
     }
@@ -71,8 +71,8 @@ public sealed class StrategyTests
     public void CopySource_Attends_WhenSourceAskedYesterday()
     {
         bool[] calculus = { false, true, false, true, false, true, false, true, false, true };
-        bool[] programming = new bool[10];
-        for (int day = 0; day < 10; day++)
+        var programming = new bool[10];
+        for (var day = 0; day < 10; day++)
         {
             programming[day] = day == 0 ? false : calculus[day - 1];
         }
@@ -83,7 +83,7 @@ public sealed class StrategyTests
             [Subject.Programming] = programming
         });
 
-        bool[] result = new ReconStrategy().DecideDay(11, history);
+        var result = new ReconStrategy().DecideDay(11, history);
 
         Assert.True(ToDecision(result)[Subject.Programming]);
     }
@@ -93,8 +93,8 @@ public sealed class StrategyTests
     {
         bool[] calculus = { true, false, true, false, true, false, true, false, true, false };
         bool[] linearAlgebra = { false, true, false, true, false, true, false, true, false, true };
-        bool[] physics = new bool[10];
-        for (int day = 0; day < 10; day++)
+        var physics = new bool[10];
+        for (var day = 0; day < 10; day++)
         {
             physics[day] = day == 0 ? false : calculus[day - 1] != linearAlgebra[day - 1];
         }
@@ -106,7 +106,7 @@ public sealed class StrategyTests
             [Subject.Physics] = physics
         });
 
-        bool[] result = new ReconStrategy().DecideDay(11, history);
+        var result = new ReconStrategy().DecideDay(11, history);
 
         Assert.True(ToDecision(result)[Subject.Physics]);
     }
@@ -116,8 +116,8 @@ public sealed class StrategyTests
     {
         bool[] calculus = { true, false, true, false, true, false, true, false, true, false };
         bool[] linearAlgebra = { false, true, false, true, false, true, false, true, false, false };
-        bool[] physics = new bool[10];
-        for (int day = 0; day < 10; day++)
+        var physics = new bool[10];
+        for (var day = 0; day < 10; day++)
         {
             physics[day] = day == 0 ? false : calculus[day - 1] != linearAlgebra[day - 1];
         }
@@ -129,7 +129,7 @@ public sealed class StrategyTests
             [Subject.Physics] = physics
         });
 
-        bool[] result = new ReconStrategy().DecideDay(11, history);
+        var result = new ReconStrategy().DecideDay(11, history);
 
         Assert.False(ToDecision(result)[Subject.Physics]);
     }
@@ -143,7 +143,7 @@ public sealed class StrategyTests
             [Subject.Calculus] = Enumerable.Repeat(true, 10).ToArray()
         });
 
-        bool[] result = new ReconStrategy().DecideDay(11, history);
+        var result = new ReconStrategy().DecideDay(11, history);
 
         Assert.False(ToDecision(result)[Subject.Physics]);
         Assert.True(ToDecision(result)[Subject.Calculus]);
@@ -155,9 +155,9 @@ public sealed class StrategyTests
     private static History BuildHistory(Dictionary<Subject, bool[]> sequences)
     {
         var history = new History();
-        foreach ((Subject subject, bool[] asked) in sequences)
+        foreach (var (subject, asked) in sequences)
         {
-            for (int day = 0; day < asked.Length; day++)
+            for (var day = 0; day < asked.Length; day++)
             {
                 history.RecordAttended(day + 1, subject, asked[day]);
             }
