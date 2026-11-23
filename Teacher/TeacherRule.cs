@@ -1,5 +1,5 @@
 namespace Truancy;
-// enum трех правил
+
 public enum TeacherRule
 {
     Random50,
