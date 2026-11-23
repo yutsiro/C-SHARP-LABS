@@ -2,7 +2,6 @@ namespace Truancy;
 
 public interface ISkipStrategy
 {
-    string Name { get; }
     bool[] DecideDay(int day, IReadOnlyStudentHistory history);
 }
 
@@ -16,8 +15,6 @@ public sealed class ReconStrategy : ISkipStrategy
 
     private bool _classified;
     private readonly Dictionary<Subject, TeacherGuess> _guesses = new();
-
-    public string Name => "Recon10";
 
     public bool[] DecideDay(int day, IReadOnlyStudentHistory history)
     {

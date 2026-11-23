@@ -8,8 +8,6 @@ public sealed class SimulatorTests
     {
         private readonly bool[] _plan;
 
-        public string Name => "Fixed";
-
         public FixedStrategy(bool[] plan) => _plan = plan;
 
         public bool[] DecideDay(int day, IReadOnlyStudentHistory history) => _plan;
